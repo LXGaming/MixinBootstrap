@@ -1,0 +1,101 @@
+plugins {
+    id "java"
+    id "signing"
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+group = "io.github.lxgaming"
+archivesBaseName = "MixinBootstrap"
+version = "1.0.0"
+
+configurations {
+    provided {
+        compile.extendsFrom(provided)
+    }
+
+    build.dependsOn("signJar")
+}
+
+repositories {
+    jcenter()
+    maven {
+        name = "minecraftforge"
+        url = "https://files.minecraftforge.net/maven"
+    }
+    maven {
+        name = "spongepowered"
+        url = "https://repo.spongepowered.org/maven"
+    }
+}
+
+dependencies {
+    provided("com.google.code.findbugs:jsr305:3.0.2")
+    provided("cpw.mods:modlauncher:4.2.0") {
+        exclude(module: "asm-analysis")
+    }
+    provided("net.sf.jopt-simple:jopt-simple:5.0.4")
+    provided("org.apache.logging.log4j:log4j-api:2.11.2")
+    compile("org.ow2.asm:asm-analysis:6.2") {
+        transitive = false
+    }
+    compile("org.ow2.asm:asm-util:6.2") {
+        transitive = false
+    }
+    compile("org.spongepowered:mixin:0.8-SNAPSHOT") {
+        transitive = false
+    }
+}
+
+jar {
+    from ((configurations.compile - configurations.provided).findAll({
+            it.isDirectory() || it.name.endsWith(".jar")
+        }).collect({
+            it.isDirectory() ? it : zipTree(it)
+        })) {
+
+        exclude("META-INF/services/cpw.mods.modlauncher.*")
+        exclude("META-INF/*.RSA")
+        exclude("META-INF/*.SF")
+    }
+
+    exclude("module-info.class")
+}
+
+processResources {
+    from("LICENSE")
+    rename("LICENSE", "LICENSE-" + archivesBaseName)
+}
+
+task signJar {
+    doFirst {
+        if (!project.hasProperty("signing.keyStorePath") || !project.hasProperty("signing.secretKeyRingFile")) {
+            project.logger.warn("========== [WARNING] ==========")
+            project.logger.warn("")
+            project.logger.warn("   This build is not signed!   ")
+            project.logger.warn("")
+            project.logger.warn("========== [WARNING] ==========")
+            throw new StopExecutionException()
+        }
+    }
+
+    doLast {
+        configurations.archives.allArtifacts.files.each {
+            ant.signjar(
+                jar: it,
+                alias: project.property("signing.alias"),
+                storepass: project.property("signing.keyStorePassword"),
+                keystore: project.property("signing.keyStorePath"),
+                keypass: project.property("signing.keyStorePassword"),
+                preservelastmodified: project.property("signing.preserveLastModified"),
+                tsaurl: project.property("signing.timestampAuthority"),
+                digestalg: project.property("signing.digestAlgorithm")
+            )
+            project.logger.lifecycle("JAR Signed: " + it.name)
+
+            signing.sign(it)
+            project.logger.lifecycle("PGP Signed: " + it.name)
+        }
+    }
+}
