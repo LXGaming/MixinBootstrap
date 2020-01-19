@@ -8,7 +8,7 @@ targetCompatibility = 1.8
 
 group = "io.github.lxgaming"
 archivesBaseName = "MixinBootstrap"
-version = "1.0.0"
+version = "1.0.1"
 
 configurations {
     provided {
@@ -65,7 +65,7 @@ jar {
 
 processResources {
     from("LICENSE")
-    rename("LICENSE", "LICENSE-" + archivesBaseName)
+    rename("LICENSE", "LICENSE-${archivesBaseName}")
 }
 
 task signJar {
