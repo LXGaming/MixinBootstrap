@@ -43,7 +43,7 @@ dependencies {
     compile("org.ow2.asm:asm-util:6.2") {
         transitive = false
     }
-    compile("org.spongepowered:mixin:0.8-SNAPSHOT") {
+    compile("org.spongepowered:mixin:0.8") {
         transitive = false
     }
 }
