@@ -23,15 +23,14 @@ import cpw.mods.modlauncher.api.ITransformationService;
 import cpw.mods.modlauncher.api.ITransformer;
 import cpw.mods.modlauncher.api.IncompatibleEnvironmentException;
 import cpw.mods.modlauncher.serviceapi.ILaunchPluginService;
+import io.github.lxgaming.classloader.ClassLoaderUtils;
 import joptsimple.OptionSpecBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -109,12 +108,10 @@ public class MixinTransformationService implements ITransformationService {
         }
         
         try {
-            URLClassLoader classLoader = (URLClassLoader) Launcher.class.getClassLoader();
-            Method addURLMethod = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-            addURLMethod.setAccessible(true);
-            addURLMethod.invoke(classLoader, getClass().getProtectionDomain().getCodeSource().getLocation().toURI().toURL());
+            ClassLoaderUtils.appendToClassPath(Launcher.class.getClassLoader(), getClass().getProtectionDomain().getCodeSource().getLocation().toURI().toURL());
         } catch (Throwable ex) {
-            throw new IncompatibleEnvironmentException("Failed to invoke URLClassLoader::addURL");
+            LOGGER.error("Encountered an error while attempting to append to the class path", ex);
+            throw new IncompatibleEnvironmentException("Failed to append to the class path");
         }
         
         // Mixin

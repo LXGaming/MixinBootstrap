@@ -21,6 +21,10 @@ configurations {
 repositories {
     jcenter()
     maven {
+        name = "lxgaming"
+        url = "https://dl.bintray.com/lxgaming/maven"
+    }
+    maven {
         name = "minecraftforge"
         url = "https://files.minecraftforge.net/maven"
     }
@@ -35,6 +39,7 @@ dependencies {
     provided("cpw.mods:modlauncher:4.2.0") {
         exclude(module: "asm-analysis")
     }
+    compile("io.github.lxgaming:classloaderutils:1.0.0")
     provided("net.sf.jopt-simple:jopt-simple:5.0.4")
     provided("org.apache.logging.log4j:log4j-api:2.11.2")
     compile("org.ow2.asm:asm-analysis:6.2") {
