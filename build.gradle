@@ -49,6 +49,13 @@ dependencies {
 }
 
 jar {
+    manifest {
+        attributes(
+                "TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
+                "TweakOrder": 0
+        )
+    }
+
     from ((configurations.compile - configurations.provided).findAll({
             it.isDirectory() || it.name.endsWith(".jar")
         }).collect({
