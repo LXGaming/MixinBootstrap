@@ -9,9 +9,6 @@
 
 **MixinBootstrap** is a **temporary** way of booting [Mixin](https://github.com/SpongePowered/Mixin) in a [MinecraftForge](https://github.com/MinecraftForge/MinecraftForge) production environment.
 
-## Prerequisites
-[MinecraftForge](https://github.com/MinecraftForge/MinecraftForge) must be running [ModLauncher](https://github.com/cpw/modlauncher) v4.1.0 or higher
-
 ## Usage
 Simply drop the `MixinBootstrap-<VERSION>.jar` into the [MinecraftForge](https://github.com/MinecraftForge/MinecraftForge) mods folder
 
@@ -21,7 +18,7 @@ MixinBootstrap is available on [GitHub](https://github.com/LXGaming/MixinBootstr
 ## Compatibility
 | Version | Support | Reason |
 | :-----: | :-----: | :----: |
-| 1.12.x | :heavy_check_mark: | - |
+| 1.12.2 | :heavy_check_mark: | - |
 | 1.13.x | :x: | Not supported due to ModLauncher version |
 | 1.14.x | :warning: | Only Forge 28.1.45 or later |
 | 1.15.x | :heavy_check_mark: | - |
