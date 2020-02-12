@@ -155,9 +155,9 @@ public class MixinTransformationService implements ITransformationService {
         return null;
     }
     
+    @SuppressWarnings("unchecked")
     private void registerLaunchPluginService(String className) throws IncompatibleEnvironmentException {
         try {
-            // noinspection unchecked
             Class<? extends ILaunchPluginService> launchPluginServiceClass = (Class<? extends ILaunchPluginService>) Class.forName(className, true, Launcher.class.getClassLoader());
             if (isLaunchPluginServicePresent(launchPluginServiceClass)) {
                 LOGGER.warn("{} is already registered", launchPluginServiceClass.getSimpleName());
@@ -185,9 +185,9 @@ public class MixinTransformationService implements ITransformationService {
         }
     }
     
+    @SuppressWarnings("unchecked")
     private void registerTransformationService(String className) throws IncompatibleEnvironmentException {
         try {
-            // noinspection unchecked
             Class<? extends ITransformationService> transformationServiceClass = (Class<? extends ITransformationService>) Class.forName(className, true, Thread.currentThread().getContextClassLoader());
             if (isTransformationServicePresent(transformationServiceClass)) {
                 LOGGER.warn("{} is already registered", transformationServiceClass.getSimpleName());
