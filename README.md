@@ -14,6 +14,7 @@ Simply drop the `MixinBootstrap-<VERSION>.jar` into the [MinecraftForge](https:/
 
 ## Download
 MixinBootstrap is available on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/mixinbootstrap)
+
 MixinBootstrap is available on [GitHub](https://github.com/LXGaming/MixinBootstrap/releases)
 
 ## Compatibility
