@@ -133,6 +133,7 @@ public class MixinTransformationService implements ITransformationService {
     
     @Nonnull
     @Override
+    @SuppressWarnings("rawtypes")
     public List<ITransformer> transformers() {
         List<ITransformer> list = new ArrayList<>();
         this.transformationServices.forEach(transformationService -> {
@@ -221,6 +222,7 @@ public class MixinTransformationService implements ITransformationService {
         return false;
     }
     
+    @SuppressWarnings("unchecked")
     private Map<String, ILaunchPluginService> getLaunchPluginServices() {
         try {
             // cpw.mods.modlauncher.Launcher.launchPlugins
@@ -231,8 +233,6 @@ public class MixinTransformationService implements ITransformationService {
             // cpw.mods.modlauncher.LaunchPluginHandler.plugins
             Field pluginsField = LaunchPluginHandler.class.getDeclaredField("plugins");
             pluginsField.setAccessible(true);
-            
-            // noinspection unchecked
             return (Map<String, ILaunchPluginService>) pluginsField.get(launchPluginHandler);
         } catch (Exception ex) {
             LOGGER.error("Encountered an error while getting LaunchPluginServices", ex);
