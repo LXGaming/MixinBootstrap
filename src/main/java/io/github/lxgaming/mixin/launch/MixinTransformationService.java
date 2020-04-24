@@ -98,13 +98,13 @@ public class MixinTransformationService implements ITransformationService {
     
     @Override
     public void onLoad(IEnvironment env, Set<String> otherServices) throws IncompatibleEnvironmentException {
-        if (this.launchPluginServices == null) {
-            throw new IncompatibleEnvironmentException("LaunchPluginServices is unavailable");
+        if (env.findLaunchPlugin("mixin").isPresent()) {
+            LOGGER.debug("MixinLauncherPlugin detected");
+            return;
         }
         
-        // Running in a dev environment
-        if (getClass().getClassLoader() == Launcher.class.getClassLoader()) {
-            return;
+        if (this.launchPluginServices == null) {
+            throw new IncompatibleEnvironmentException("LaunchPluginServices is unavailable");
         }
         
         if (!ITransformationService.class.getPackage().isCompatibleWith("4.0")) {
