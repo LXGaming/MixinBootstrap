@@ -31,6 +31,7 @@ import org.apache.logging.log4j.Logger;
 import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -78,6 +79,8 @@ public class MixinTransformationService implements ITransformationService {
     
     @Override
     public void initialize(IEnvironment environment) {
+        ensureTransformerExclusion();
+        
         this.transformationServices.forEach(transformationService -> transformationService.initialize(environment));
     }
     
@@ -159,6 +162,40 @@ public class MixinTransformationService implements ITransformationService {
     @Override
     public Map.Entry<Set<String>, Supplier<Function<String, Optional<URL>>>> additionalResourcesLocator() {
         return null;
+    }
+    
+    /**
+     * Fixes https://github.com/MinecraftForge/MinecraftForge/pull/6600
+     */
+    private void ensureTransformerExclusion() {
+        try {
+            Path path = Launcher.INSTANCE.environment().getProperty(IEnvironment.Keys.GAMEDIR.get())
+                    .map(parentPath -> parentPath.resolve("mods"))
+                    .map(Path::toAbsolutePath)
+                    .map(Path::normalize)
+                    .map(parentPath -> {
+                        // Extract the file name
+                        String file = getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
+                        return parentPath.resolve(file.substring(file.lastIndexOf('/') + 1));
+                    })
+                    .filter(Files::exists)
+                    .orElse(null);
+            if (path == null) {
+                return;
+            }
+            
+            // Check if the path is behind a symbolic link
+            if (path.equals(path.toRealPath())) {
+                return;
+            }
+            
+            List<Path> transformers = getTransformers();
+            if (transformers != null && !transformers.contains(path)) {
+                transformers.add(path);
+            }
+        } catch (Throwable ex) {
+            // no-op
+        }
     }
     
     @SuppressWarnings("unchecked")
@@ -244,6 +281,21 @@ public class MixinTransformationService implements ITransformationService {
             return (Map<String, ILaunchPluginService>) pluginsField.get(launchPluginHandler);
         } catch (Exception ex) {
             LOGGER.error("Encountered an error while getting LaunchPluginServices", ex);
+            return null;
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+    private List<Path> getTransformers() {
+        try {
+            Class<?> modDirTransformerDiscovererClass = Class.forName("net.minecraftforge.fml.loading.ModDirTransformerDiscoverer", true, Launcher.class.getClassLoader());
+            
+            // net.minecraftforge.fml.loading.ModDirTransformerDiscoverer.transformers
+            Field transformersField = modDirTransformerDiscovererClass.getDeclaredField("transformers");
+            transformersField.setAccessible(true);
+            return (List<Path>) transformersField.get(null);
+        } catch (Exception ex) {
+            LOGGER.error("Encountered an error while getting Transformers", ex);
             return null;
         }
     }
