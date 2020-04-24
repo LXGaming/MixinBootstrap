@@ -107,6 +107,14 @@ public class MixinTransformationService implements ITransformationService {
             return;
         }
         
+        if (!ITransformationService.class.getPackage().isCompatibleWith("4.0")) {
+            LOGGER.error("-------------------------[ ERROR ]-------------------------");
+            LOGGER.error("Mixin is not compatible with ModLauncher v" + ITransformationService.class.getPackage().getImplementationVersion());
+            LOGGER.error("Ensure you are running Forge v28.1.45 or later");
+            LOGGER.error("-------------------------[ ERROR ]-------------------------");
+            throw new IncompatibleEnvironmentException("Incompatibility with ModLauncher");
+        }
+        
         try {
             ClassLoaderUtils.appendToClassPath(Launcher.class.getClassLoader(), getClass().getProtectionDomain().getCodeSource().getLocation().toURI().toURL());
         } catch (Throwable ex) {
