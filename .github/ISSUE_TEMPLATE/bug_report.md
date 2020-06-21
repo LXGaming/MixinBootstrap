@@ -16,3 +16,5 @@ assignees: ''
 
 **Issue Description**
 <!-- A clear and concise description of what the bug is. -->
+
+<!-- Please attach your debug.log and/or latest.log files. -->
