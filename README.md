@@ -24,6 +24,7 @@ MixinBootstrap is available on [GitHub](https://github.com/LXGaming/MixinBootstr
 | 1.13.x | :x: | Not supported due to ModLauncher version |
 | 1.14.x | :warning: | Only Forge 28.1.45 or later |
 | 1.15.x | :heavy_check_mark: | - |
+| 1.16.x | :heavy_check_mark: | - |
 
 :heavy_check_mark: - Full Support | :warning: - Partial Support | :x: - No Support
 
