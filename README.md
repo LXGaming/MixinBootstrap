@@ -5,7 +5,7 @@
 
 ## This is an unofficial method of loading Mixin and as such do not expect any support.
 
-## For development purposes only.
+## Mixin is available in Forge 1.16.1-32.0.72+ (MixinBootstrap is no longer required).
 
 **MixinBootstrap** is a **temporary** way of booting [Mixin](https://github.com/SpongePowered/Mixin) in a [MinecraftForge](https://github.com/MinecraftForge/MinecraftForge) production environment.
 
