@@ -1,6 +1,5 @@
 # MixinBootstrap
 
-[![Build Status](https://api.travis-ci.com/LXGaming/MixinBootstrap.svg?branch=master)](https://travis-ci.com/LXGaming/MixinBootstrap)
 [![License](https://lxgaming.github.io/badges/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 ## This is an unofficial method of loading Mixin and as such do not expect any support.
