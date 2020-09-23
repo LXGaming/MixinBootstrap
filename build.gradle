@@ -8,7 +8,7 @@ targetCompatibility = 1.8
 
 group = "io.github.lxgaming"
 archivesBaseName = "MixinBootstrap"
-version = "1.0.3"
+version = "1.0.4"
 
 configurations {
     provided {
@@ -36,7 +36,7 @@ repositories {
 
 dependencies {
     provided("com.google.code.findbugs:jsr305:3.0.2")
-    provided("cpw.mods:modlauncher:4.2.0") {
+    provided("cpw.mods:modlauncher:5.1.2") {
         exclude(module: "asm-analysis")
     }
     compile("io.github.lxgaming:classloaderutils:1.0.0")
@@ -48,7 +48,7 @@ dependencies {
     compile("org.ow2.asm:asm-util:6.2") {
         transitive = false
     }
-    compile("org.spongepowered:mixin:0.8") {
+    compile("org.spongepowered:mixin:0.8.1") {
         transitive = false
     }
 }
