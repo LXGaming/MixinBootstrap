@@ -8,7 +8,7 @@ targetCompatibility = 1.8
 
 group = "io.github.lxgaming"
 archivesBaseName = "MixinBootstrap"
-version = "1.0.4"
+version = "1.0.5"
 
 configurations {
     provided {
@@ -48,7 +48,7 @@ dependencies {
     compile("org.ow2.asm:asm-util:6.2") {
         transitive = false
     }
-    compile("org.spongepowered:mixin:0.8.1") {
+    compile("org.spongepowered:mixin:0.8.2") {
         transitive = false
     }
 }
