@@ -19,11 +19,7 @@ configurations {
 }
 
 repositories {
-    jcenter()
-    maven {
-        name = "lxgaming"
-        url = "https://dl.bintray.com/lxgaming/maven"
-    }
+    mavenCentral()
     maven {
         name = "minecraftforge"
         url = "https://files.minecraftforge.net/maven"
