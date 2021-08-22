@@ -1,7 +1,14 @@
-plugins {
-    id "java"
-    id "signing"
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.ow2.asm:asm:9.2"
+    }
 }
+
+apply plugin: "java"
+apply plugin: "signing"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -10,9 +17,19 @@ group = "io.github.lxgaming"
 archivesBaseName = "_MixinBootstrap"
 version = "1.0.6"
 
+java {
+    disableAutoTargetJvm()
+}
+
 configurations {
     provided {
-        compile.extendsFrom(provided)
+        implementation.extendsFrom(provided)
+    }
+    providedJar {
+        implementation.extendsFrom(providedJar)
+    }
+    providedMixin {
+        implementation.extendsFrom(providedMixin)
     }
 
     // build.dependsOn("signJar")
@@ -22,29 +39,29 @@ repositories {
     mavenCentral()
     maven {
         name = "minecraftforge"
-        url = "https://files.minecraftforge.net/maven"
+        url = "https://maven.minecraftforge.net/"
     }
     maven {
         name = "spongepowered"
-        url = "https://repo.spongepowered.org/maven"
+        url = "https://repo.spongepowered.org/repository/maven-public/"
     }
 }
 
 dependencies {
-    provided("com.google.code.findbugs:jsr305:3.0.2")
-    provided("cpw.mods:modlauncher:5.1.2") {
+    implementation("com.google.code.findbugs:jsr305:3.0.2")
+    implementation("cpw.mods:modlauncher:5.1.2") {
         exclude(module: "asm-analysis")
     }
-    compile("io.github.lxgaming:classloaderutils:1.0.0")
-    provided("net.sf.jopt-simple:jopt-simple:5.0.4")
-    provided("org.apache.logging.log4j:log4j-api:2.11.2")
-    compile("org.ow2.asm:asm-analysis:6.2") {
+    provided("io.github.lxgaming:classloaderutils:1.0.0")
+    implementation("net.sf.jopt-simple:jopt-simple:5.0.4")
+    implementation("org.apache.logging.log4j:log4j-api:2.11.2")
+    providedJar("org.ow2.asm:asm-analysis:6.2") {
         transitive = false
     }
-    compile("org.ow2.asm:asm-util:6.2") {
+    providedJar("org.ow2.asm:asm-util:6.2") {
         transitive = false
     }
-    compile("org.spongepowered:mixin:0.8.2") {
+    providedMixin("org.spongepowered:mixin:0.8.4-SNAPSHOT") {
         transitive = false
     }
 }
@@ -52,24 +69,34 @@ dependencies {
 jar {
     manifest {
         attributes(
+                "Automatic-Module-Name": "mixinbootstrap",
                 "TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
                 "TweakOrder": 0
         )
     }
 
-    from ((configurations.compile - configurations.provided).findAll({
+    from ((configurations.provided + configurations.providedMixin).findAll({
             it.isDirectory() || it.name.endsWith(".jar")
         }).collect({
             it.isDirectory() ? it : zipTree(it)
         })) {
-
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
         exclude("META-INF/services/cpw.mods.modlauncher.*")
+        exclude("META-INF/services/org.spongepowered.asm.service.*")
         exclude("META-INF/*.RSA")
         exclude("META-INF/*.SF")
+        exclude("module-info.class")
     }
 
-    exclude("module-info.class")
+    into ("META-INF/libraries") {
+        from(configurations.providedJar.findAll({
+            it.name.endsWith(".jar")
+        }).collect({
+            it
+        }))
+    }
 }
+tasks.jar.dependsOn "patchMixinModule"
 
 processResources {
     from("LICENSE")
@@ -105,5 +132,40 @@ task signJar {
             signing.sign(it)
             project.logger.lifecycle("PGP Signed: " + it.name)
         }
+    }
+}
+
+import java.util.zip.ZipFile
+import org.objectweb.asm.ClassWriter
+import org.objectweb.asm.ClassReader
+import org.objectweb.asm.ClassVisitor
+import org.objectweb.asm.ModuleVisitor
+import org.objectweb.asm.Opcodes
+
+task patchMixinModule {
+    doLast {
+        configurations.providedMixin.asFileTree.filter({ f ->
+            f.name.startsWith("mixin-")
+        }).forEach({ f ->
+            sourceSets.main.java.classesDirectory.get().file("module-info.class").asFile.withOutputStream { os ->
+                def zf = new ZipFile(f)
+                def cw = new ClassWriter(0)
+                new ClassReader(zf.getInputStream(zf.getEntry("module-info.class"))).accept(new ClassVisitor(Opcodes.ASM9, cw) {
+                    @Override ModuleVisitor visitModule(String name, int access, String version) {
+                        return new ModuleVisitor(Opcodes.ASM9, super.visitModule(name, access, version)) {
+                            @Override void visitProvide(String service, String... providers) {
+                                if (service == "cpw/mods/modlauncher/api/ITransformationService") // clean all mixin services
+                                    providers = ["io/github/lxgaming/mixin/launch/MixinTransformationServiceV2"]
+                                super.visitProvide(service, providers)
+                            }
+                        }.with { mv ->
+                            mv.visitRequire("jdk.unsupported", 0, null)
+                            mv
+                        }
+                    }
+                }, 0)
+                os.write(cw.toByteArray())
+            }
+        })
     }
 }
