@@ -2,8 +2,9 @@ buildscript {
     repositories {
         mavenCentral()
     }
+
     dependencies {
-        classpath "org.ow2.asm:asm:9.2"
+        classpath("org.ow2.asm:asm:9.2")
     }
 }
 
@@ -17,19 +18,9 @@ group = "io.github.lxgaming"
 archivesBaseName = "_MixinBootstrap"
 version = "1.0.6"
 
-java {
-    disableAutoTargetJvm()
-}
-
 configurations {
-    provided {
-        implementation.extendsFrom(provided)
-    }
-    providedJar {
-        implementation.extendsFrom(providedJar)
-    }
-    providedMixin {
-        implementation.extendsFrom(providedMixin)
+    compileJar {
+        implementation.extendsFrom(compileJar)
     }
 
     // build.dependsOn("signJar")
@@ -48,25 +39,25 @@ repositories {
 }
 
 dependencies {
-    implementation("com.google.code.findbugs:jsr305:3.0.2")
-    implementation("cpw.mods:modlauncher:5.1.2") {
-        exclude(module: "asm-analysis")
-    }
-    provided("io.github.lxgaming:classloaderutils:1.0.0")
-    implementation("net.sf.jopt-simple:jopt-simple:5.0.4")
-    implementation("org.apache.logging.log4j:log4j-api:2.11.2")
-    providedJar("org.ow2.asm:asm-analysis:6.2") {
+    compileOnly("com.google.code.findbugs:jsr305:3.0.2")
+    compileOnly("cpw.mods:modlauncher:5.1.2")
+    implementation("io.github.lxgaming:classloaderutils:1.0.0")
+    compileOnly("net.sf.jopt-simple:jopt-simple:5.0.4")
+    compileOnly("org.apache.logging.log4j:log4j-api:2.14.1")
+    compileJar("org.ow2.asm:asm-analysis:6.2") {
         transitive = false
     }
-    providedJar("org.ow2.asm:asm-util:6.2") {
+    compileJar("org.ow2.asm:asm-util:6.2") {
         transitive = false
     }
-    providedMixin("org.spongepowered:mixin:0.8.4-SNAPSHOT") {
+    implementation("org.spongepowered:mixin:0.8.4-SNAPSHOT") {
         transitive = false
     }
 }
 
 jar {
+    dependsOn("patchMixinModule")
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
     manifest {
         attributes(
                 "Automatic-Module-Name": "mixinbootstrap",
@@ -75,12 +66,11 @@ jar {
         )
     }
 
-    from ((configurations.provided + configurations.providedMixin).findAll({
-            it.isDirectory() || it.name.endsWith(".jar")
-        }).collect({
-            it.isDirectory() ? it : zipTree(it)
-        })) {
-        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    from ((configurations.runtimeClasspath - configurations.compileJar).findAll({
+        it.isDirectory() || it.name.endsWith(".jar")
+    }).collect({
+        it.isDirectory() ? it : zipTree(it)
+    })) {
         exclude("META-INF/services/cpw.mods.modlauncher.*")
         exclude("META-INF/services/org.spongepowered.asm.service.*")
         exclude("META-INF/*.RSA")
@@ -89,14 +79,17 @@ jar {
     }
 
     into ("META-INF/libraries") {
-        from(configurations.providedJar.findAll({
+        from (configurations.compileJar.findAll({
             it.name.endsWith(".jar")
         }).collect({
             it
         }))
     }
 }
-tasks.jar.dependsOn "patchMixinModule"
+
+java {
+    disableAutoTargetJvm()
+}
 
 processResources {
     from("LICENSE")
@@ -136,35 +129,43 @@ task signJar {
 }
 
 import java.util.zip.ZipFile
-import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
+import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.ModuleVisitor
 import org.objectweb.asm.Opcodes
 
 task patchMixinModule {
     doLast {
-        configurations.providedMixin.asFileTree.filter({ f ->
-            f.name.startsWith("mixin-")
-        }).forEach({ f ->
-            sourceSets.main.java.classesDirectory.get().file("module-info.class").asFile.withOutputStream { os ->
-                def zf = new ZipFile(f)
-                def cw = new ClassWriter(0)
-                new ClassReader(zf.getInputStream(zf.getEntry("module-info.class"))).accept(new ClassVisitor(Opcodes.ASM9, cw) {
-                    @Override ModuleVisitor visitModule(String name, int access, String version) {
+        configurations.compileClasspath.asFileTree.filter({
+            it.name.startsWith("mixin-")
+        }).forEach({ file ->
+            sourceSets.main.java.classesDirectory.get().file("module-info.class").asFile.withOutputStream { outputStream ->
+                ZipFile zipFile = new ZipFile(file)
+                ClassReader classReader = new ClassReader(zipFile.getInputStream(zipFile.getEntry("module-info.class")))
+                ClassWriter classWriter = new ClassWriter(0)
+
+                classReader.accept(new ClassVisitor(Opcodes.ASM9, classWriter) {
+                    @Override
+                    ModuleVisitor visitModule(String name, int access, String version) {
                         return new ModuleVisitor(Opcodes.ASM9, super.visitModule(name, access, version)) {
-                            @Override void visitProvide(String service, String... providers) {
-                                if (service == "cpw/mods/modlauncher/api/ITransformationService") // clean all mixin services
+                            @Override
+                            void visitProvide(String service, String... providers) {
+                                // clean all mixin services
+                                if (service == "cpw/mods/modlauncher/api/ITransformationService") {
                                     providers = ["io/github/lxgaming/mixin/launch/MixinTransformationServiceV2"]
+                                }
+
                                 super.visitProvide(service, providers)
                             }
-                        }.with { mv ->
-                            mv.visitRequire("jdk.unsupported", 0, null)
-                            mv
+                        }.with { moduleVisitor ->
+                            moduleVisitor.visitRequire("jdk.unsupported", 0, null)
+                            moduleVisitor
                         }
                     }
                 }, 0)
-                os.write(cw.toByteArray())
+
+                outputStream.write(classWriter.toByteArray())
             }
         })
     }
