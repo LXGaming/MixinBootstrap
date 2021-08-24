@@ -160,7 +160,7 @@ task patchMixinModule {
                             void visitProvide(String service, String... providers) {
                                 // clean all mixin services
                                 if (service == "cpw/mods/modlauncher/api/ITransformationService") {
-                                    providers = ["io/github/lxgaming/mixin/launch/MixinTransformationServiceV2"]
+                                    providers = ["io/github/lxgaming/mixin/launch/MixinTransformationService"]
                                 }
 
                                 super.visitProvide(service, providers)

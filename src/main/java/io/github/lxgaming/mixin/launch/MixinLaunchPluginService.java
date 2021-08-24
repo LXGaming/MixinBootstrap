@@ -25,11 +25,8 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 
 public class MixinLaunchPluginService implements ILaunchPluginService {
-    
-    public static final String NAME = "mixinbootstrap";
     
     private static final List<String> SKIP_PACKAGES = Arrays.asList(
             "org.objectweb.asm.",
@@ -42,7 +39,7 @@ public class MixinLaunchPluginService implements ILaunchPluginService {
     
     @Override
     public String name() {
-        return MixinLaunchPluginService.NAME;
+        return MixinBootstrap.ID;
     }
     
     @Override
@@ -66,17 +63,8 @@ public class MixinLaunchPluginService implements ILaunchPluginService {
     }
     
     @Override
-    public void addResources(List<Map.Entry<String, Path>> resources) {
-    }
-    
-    @Override
     public void initializeLaunch(ITransformerLoader transformerLoader, Path[] specialPaths) {
         TransformingClassLoader classLoader = (TransformingClassLoader) Thread.currentThread().getContextClassLoader();
         classLoader.addTargetPackageFilter(name -> SKIP_PACKAGES.stream().noneMatch(name::startsWith));
-    }
-    
-    @Override
-    public <T> T getExtension() {
-        return null;
     }
 }
