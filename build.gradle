@@ -155,7 +155,10 @@ task patchMixinModule {
                 classReader.accept(new ClassVisitor(Opcodes.ASM9, classWriter) {
                     @Override
                     ModuleVisitor visitModule(String name, int access, String version) {
-                        return new ModuleVisitor(Opcodes.ASM9, super.visitModule(name, access, version)) {
+                        return new ModuleVisitor(Opcodes.ASM9, super.visitModule("io.github.lxgaming.mixin.launch", access, version)) {
+                            @Override
+                            void visitExport(String exportPackage, int exportAccess, String... modules) {
+                            }
                             @Override
                             void visitProvide(String service, String... providers) {
                                 // clean all mixin services
