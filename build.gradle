@@ -50,14 +50,14 @@ dependencies {
     compileOnly("cpw.mods:modlauncher:5.1.2")
     implementation("io.github.lxgaming:classloaderutils:1.0.0")
     compileOnly("net.sf.jopt-simple:jopt-simple:5.0.4")
-    compileOnly("org.apache.logging.log4j:log4j-api:2.14.1")
+    compileOnly("org.apache.logging.log4j:log4j-api:2.17.0")
     compileJar("org.ow2.asm:asm-analysis:6.2") {
         transitive = false
     }
     compileJar("org.ow2.asm:asm-util:6.2") {
         transitive = false
     }
-    implementation("org.spongepowered:mixin:0.8.4-SNAPSHOT") {
+    implementation("org.spongepowered:mixin:0.8.5") {
         transitive = false
     }
 }
