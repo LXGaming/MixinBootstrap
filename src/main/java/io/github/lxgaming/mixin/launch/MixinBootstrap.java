@@ -195,7 +195,7 @@ public class MixinBootstrap {
                 transformers.add(path);
             }
         } catch (Throwable ex) {
-            LOGGER.error("Encountered an error while getting ensuring transformer exclusion", ex);
+            LOGGER.error("Encountered an error while ensuring transformer exclusion", ex);
         }
     }
 }
