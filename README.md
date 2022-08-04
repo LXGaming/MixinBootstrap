@@ -1,6 +1,6 @@
 # MixinBootstrap
 
-[![License](https://lxgaming.github.io/badges/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![License](https://img.shields.io/github/license/LXGaming/MixinBootstrap?label=License&cacheSeconds=86400)](https://github.com/LXGaming/MixinBootstrap/blob/master/LICENSE)
 
 ## This is an unofficial method of loading Mixin and as such do not expect any support.
 
@@ -10,6 +10,9 @@
 
 ## Usage
 Simply drop the `MixinBootstrap-<VERSION>.jar` into the [MinecraftForge](https://github.com/MinecraftForge/MinecraftForge) mods folder
+
+### Development
+Add the `org.spongepowered:mixin:0.8.5` dependency to your `build.gradle`, If you want to depend on MixinBootstrap then simply don't compile Mixin into your mod.
 
 ## Download
 MixinBootstrap is available on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/mixinbootstrap)
@@ -29,4 +32,4 @@ MixinBootstrap is available on [GitHub](https://github.com/LXGaming/MixinBootstr
 :heavy_check_mark: - Full Support | :warning: - Partial Support | :x: - No Support
 
 ## License
-MixinBootstrap is licensed under the [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) license.
+MixinBootstrap is licensed under the [Apache 2.0](https://github.com/LXGaming/MixinBootstrap/blob/master/LICENSE) license.
