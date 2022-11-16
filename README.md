@@ -15,9 +15,9 @@ Simply drop the `MixinBootstrap-<VERSION>.jar` into the [MinecraftForge](https:/
 Add the `org.spongepowered:mixin:0.8.5` dependency to your `build.gradle`, If you want to depend on MixinBootstrap then simply don't compile Mixin into your mod.
 
 ## Download
-MixinBootstrap is available on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/mixinbootstrap)
-
-MixinBootstrap is available on [GitHub](https://github.com/LXGaming/MixinBootstrap/releases)
+- [CurseForge](https://www.curseforge.com/minecraft/mc-mods/mixinbootstrap)
+- [GitHub](https://github.com/LXGaming/MixinBootstrap/releases)
+- [Modrinth](https://modrinth.com/mod/mixinbootstrap)
 
 ## Compatibility
 | Version | Support | Reason |
